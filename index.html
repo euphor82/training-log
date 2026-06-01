@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Training Log">
+<title>Football Training Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;}
+body{margin:0;padding:0;background:#0B0F1A;color:#E2E8F0;font-family:'Barlow',-apple-system,'Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+button{-webkit-user-select:none;user-select:none;font-family:inherit;}
+#js-warning{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 24px;text-align:center;}
+#app{display:none;}
+.install-bar{background:#0D1322;border-bottom:1px solid #1E2D45;display:flex;align-items:center;gap:12px;padding:12px 16px;}
+.header{background:#0B0F1A;padding:16px 16px 14px;}
+.title-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+.app-title{font-family:'Barlow Condensed',-apple-system,sans-serif;font-size:26px;font-weight:700;letter-spacing:2px;color:#E2E8F0;line-height:1;}
+.app-sub{font-size:13px;color:#64748B;margin-top:3px;}
+.reset-btn{background:transparent;border:1px solid #1E2D45;border-radius:10px;padding:8px 12px;color:#64748B;font-size:12px;cursor:pointer;min-height:38px;display:block;margin-top:4px;}
+.pbar-labels{display:flex;justify-content:space-between;margin-bottom:6px;}
+.pbar{height:6px;background:#141928;border-radius:3px;overflow:hidden;border:1px solid #1E2D45;}
+.pbar-fill{height:100%;background:#22C55E;border-radius:3px;transition:width 0.4s ease;}
+.tabs-wrap{overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;display:flex;gap:7px;padding:14px 16px 12px;scrollbar-width:none;}
+.tabs-wrap::-webkit-scrollbar{display:none;}
+.dtab{flex:0 0 70px;height:72px;scroll-snap-align:start;border-radius:14px;border:1px solid #1E2D45;background:#141928;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;-webkit-user-select:none;transition:all 0.15s;}
+.dtab.active{border:2px solid #60A5FA;background:rgba(96,165,250,0.1);}
+.dtab.done{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.35);}
+.day-header-card{background:#141928;border:1px solid #1E2D45;border-radius:18px;padding:18px;margin:0 16px 10px;display:flex;align-items:flex-start;gap:14px;}
+.day-theme{font-family:'Barlow Condensed',-apple-system,sans-serif;font-size:22px;font-weight:700;letter-spacing:1.5px;color:#E2E8F0;line-height:1;}
+.done-pill{display:inline-block;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.35);border-radius:20px;padding:4px 12px;font-size:11px;color:#22C55E;font-weight:700;letter-spacing:0.5px;margin-top:8px;}
+.info-box{border-radius:12px;padding:12px 16px;margin:0 16px 8px;}
+.info-tag{font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:4px;}
+.ex-card{background:#141928;border:1px solid #1E2D45;border-radius:18px;overflow:hidden;margin-bottom:8px;}
+.ex-card.chkd{background:rgba(34,197,94,0.07);border-color:rgba(34,197,94,0.3);}
+.ex-top{display:flex;align-items:center;gap:14px;padding:16px;cursor:pointer;min-height:82px;-webkit-user-select:none;}
+.circle{width:42px;height:42px;min-width:42px;border-radius:50%;border:2.5px solid #2A3F5F;background:transparent;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:transparent;flex-shrink:0;transition:all 0.15s;}
+.circle.on{background:#22C55E;border-color:#22C55E;color:#0B0F1A;}
+.ex-name{font-size:16px;font-weight:600;color:#E2E8F0;line-height:1.2;margin-bottom:4px;}
+.ex-name.done{text-decoration:line-through;color:#22C55E;}
+.ex-detail{font-size:13px;font-weight:600;color:#94A3B8;}
+.ex-mus{font-size:12px;color:#64748B;margin-top:2px;}
+.how-btn{width:100%;padding:13px 16px;border:none;border-top:1px solid #1E2D45;background:transparent;color:#64748B;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:space-between;min-height:52px;text-align:left;}
+.how-btn.open{background:rgba(96,165,250,0.1);color:#60A5FA;border-top-color:rgba(96,165,250,0.3);}
+.how-desc{padding:14px 16px 16px;font-size:14px;color:#94A3B8;line-height:1.8;border-top:1px solid #1E2D45;}
+.safety{margin:8px 16px 0;padding:12px 16px;background:#141928;border:1px solid #1E2D45;border-radius:12px;font-size:13px;color:#64748B;line-height:1.5;}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.78);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;}
+.modal-box{background:#141928;border:1px solid #2A3F5F;border-radius:20px;padding:28px 24px;text-align:center;max-width:320px;width:100%;}
+.modal-btns{display:flex;gap:12px;margin-top:24px;}
+.mbtn{flex:1;padding:14px;font-size:15px;font-weight:600;cursor:pointer;border-radius:12px;min-height:52px;font-family:inherit;}
+</style>
+</head>
+<body>
+
+<!-- Shown only if JavaScript is blocked (e.g. Files app preview) -->
+<div id="js-warning">
+  <div style="font-size:56px;margin-bottom:20px">⚠️</div>
+  <div style="font-family:'Barlow Condensed',-apple-system,sans-serif;font-size:26px;font-weight:700;letter-spacing:1.5px;color:#E2E8F0;margin-bottom:12px">OPEN IN SAFARI</div>
+  <div style="font-size:15px;color:#94A3B8;line-height:1.7;max-width:300px;margin-bottom:28px">
+    This file needs <strong style="color:#E2E8F0">Safari</strong> to work.<br>The Files app can't run it.
+  </div>
+  <div style="background:#141928;border:1px solid #1E2D45;border-radius:16px;padding:20px 20px;max-width:320px;width:100%;text-align:left">
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:#60A5FA;margin-bottom:14px">HOW TO OPEN IN SAFARI</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="background:#1C2638;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#60A5FA;flex-shrink:0;margin-top:1px">1</div>
+        <div style="font-size:14px;color:#CBD5E1;line-height:1.5">Tap the <strong style="color:#E2E8F0">Share</strong> button <span style="color:#94A3B8">(the box with an arrow pointing up)</span></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="background:#1C2638;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#60A5FA;flex-shrink:0;margin-top:1px">2</div>
+        <div style="font-size:14px;color:#CBD5E1;line-height:1.5">Choose <strong style="color:#E2E8F0">Open in Safari</strong> from the menu</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="background:#1C2638;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#60A5FA;flex-shrink:0;margin-top:1px">3</div>
+        <div style="font-size:14px;color:#CBD5E1;line-height:1.5">Once Safari opens it, tap <strong style="color:#E2E8F0">Share</strong> again and choose <strong style="color:#22C55E">Add to Home Screen</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main app — hidden until JS runs -->
+<div id="app"></div>
+<div id="modal-root"></div>
+
+<script>
+// Hide warning, show app now that JS is running
+document.getElementById('js-warning').style.display = 'none';
+document.getElementById('app').style.display = 'block';
+
+var DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+var DL = ["MON","TUE","WED","THU","FRI","SAT","SUN"];
+
+var WD = {
+  Monday: {
+    theme:"CHEST & SHOULDERS", sub:"Push Day", icon:"💪",
+    warmup:"30 Jumping Jacks &rarr; 10 Arm Circles each direction &rarr; 10 Shoulder Rolls forward & back",
+    cooldown:"Chest stretch 30 sec each side &middot; Cross-body shoulder stretch &middot; Overhead tricep stretch",
+    exercises:[
+      {name:"Push-ups", detail:"3 sets &times; 12 reps", weight:"Bodyweight", muscles:"Chest &middot; Shoulders &middot; Triceps",
+       how:"High plank with hands just wider than your shoulders. Lower your chest all the way to the floor keeping your body straight as a board — no sagging hips! Push back up explosively. Squeeze your core the entire time. Push-ups are the foundation of upper-body strength and directly build the blocking force every football player needs on every single play."},
+      {name:"Dumbbell Shoulder Press", detail:"3 sets &times; 10 reps", weight:"8 lb each", muscles:"Shoulders &middot; Triceps",
+       how:"Sit or stand holding 8 lb dumbbells at shoulder height, palms facing forward. Press both arms straight overhead until they nearly touch, then slowly lower over 2 seconds. Keep your core tight and back straight — don't arch! Strong shoulders help you keep blockers off you and make open-field tackles."},
+      {name:"Dumbbell Lateral Raise", detail:"3 sets &times; 10 reps", weight:"5 lb each", muscles:"Side Deltoids",
+       how:"Stand with 5 lb dumbbells at your sides, a slight bend in both elbows. Raise both arms straight out to the sides until they reach shoulder height so your body looks like a T. Pause 1 second at the top, then slowly lower. These build the shoulder width and blocking-angle strength every football player needs."},
+      {name:"Tricep Dips", detail:"3 sets &times; 10 reps", weight:"Bodyweight", muscles:"Triceps &middot; Lower Chest",
+       how:"Sit on the edge of a sturdy chair, hands on the edge beside your hips. Slide your body forward off the seat and lower by bending elbows straight back to 90 degrees, then press back up. Triceps make up most of your upper arm and give you the explosive push force needed to drive defenders off the ball."},
+      {name:"Diamond Push-ups", detail:"2 sets &times; 8 reps", weight:"Bodyweight", muscles:"Triceps &middot; Inner Chest",
+       how:"Push-up position but move hands together under your chest with thumbs and index fingers forming a diamond. Lower your chest to your hands and push back up. Harder than regular push-ups, these hammer your triceps. If it is too tough, drop to your knees — still an excellent workout!"}
+    ]
+  },
+  Tuesday: {
+    theme:"LEGS & GLUTES", sub:"Lower Body Power", icon:"🦵",
+    warmup:"30 sec High Knees &rarr; 10 Leg Swings each leg &rarr; 10 Hip Circles each direction",
+    cooldown:"Hip flexor lunge hold 30 sec each &middot; Standing quad pull 20 sec each &middot; Seated hamstring reach 30 sec each",
+    exercises:[
+      {name:"Bodyweight Squats", detail:"3 sets &times; 15 reps", weight:"Bodyweight", muscles:"Quads &middot; Hamstrings &middot; Glutes",
+       how:"Feet shoulder-width apart, toes slightly out. Push your hips BACK and DOWN until thighs are parallel to the floor. Chest stays tall, knees track over your toes. Drive through your heels to stand. Every ounce of power in football starts with the legs. Squats are the absolute foundation."},
+      {name:"Goblet Squat", detail:"3 sets &times; 10 reps", weight:"15 lb", muscles:"Quads &middot; Glutes &middot; Core",
+       how:"Hold the 15 lb dumbbell vertically at your chest with both hands like cradling a goblet. Squat deep while keeping the weight close and elbows pointing down between your knees. The extra weight forces your core to stay upright — exactly the posture needed in a football stance when absorbing contact."},
+      {name:"Reverse Lunges", detail:"3 sets &times; 10 each leg", weight:"8 lb each hand", muscles:"Quads &middot; Hamstrings &middot; Glutes",
+       how:"Hold 8 lb dumbbells at your sides. Step one foot BACK and lower your back knee toward the floor. Front thigh reaches parallel, front knee stays over your ankle. Push through your front foot to return. Reverse lunges build the single-leg strength needed for cutting, planting, and accelerating on the field."},
+      {name:"Glute Bridges", detail:"3 sets &times; 15 reps", weight:"Bodyweight", muscles:"Glutes &middot; Hamstrings &middot; Lower Back",
+       how:"Lie on your back, knees bent 90 degrees, feet flat. Drive through your heels and SQUEEZE your glutes hard to lift your hips until your body forms a straight line from shoulders to knees. Hold 1 second at the top, then lower slowly. Strong glutes are the most important muscle for explosive first-step sprint speed off the snap."},
+      {name:"Calf Raises", detail:"3 sets &times; 20 reps", weight:"15 lb", muscles:"Calves",
+       how:"Stand holding the 15 lb dumbbell. Rise up on your tiptoes as HIGH as possible, then slowly lower over 2-3 seconds. For extra range, stand on the edge of a step. Calves power every push-off when running, cutting, and jumping. Do these slowly for maximum muscle activation."},
+      {name:"Wall Sit", detail:"3 sets &times; 30 sec", weight:"Bodyweight", muscles:"Quads &middot; Glutes",
+       how:"Back flat against the wall, slide down until thighs are perfectly parallel to the floor — invisible chair position. Feet flat, directly below your knees. HOLD. Builds the quad endurance needed to stay in a powerful low stance all game. When 30 seconds feels easy, push for 45 or 60!"}
+    ]
+  },
+  Wednesday: {
+    theme:"CORE & STABILITY", sub:"The Engine Room", icon:"🔥",
+    warmup:"30 Jumping Jacks &rarr; 10 Hip Circles each direction &rarr; 10 Cat-Cows on hands and knees",
+    cooldown:"Cobra stretch hold 30 sec &middot; Child's Pose 45 sec &middot; Lying spinal twist 30 sec each side",
+    exercises:[
+      {name:"Plank Hold", detail:"3 sets &times; 30-45 sec", weight:"Bodyweight", muscles:"Full Core &middot; Shoulders &middot; Glutes",
+       how:"Forearms flat on the ground, elbows directly under your shoulders. Body completely RIGID from head to heels — no hips sagging or rising. Squeeze abs, glutes, and quads all at once. Breathe steadily. Your core is the anchor of every football movement. Work from 30 seconds up toward 45 and then 60 over the coming weeks."},
+      {name:"Bicycle Crunches", detail:"3 sets &times; 20 reps", weight:"Bodyweight", muscles:"Obliques &middot; Abs",
+       how:"Lie on your back, hands lightly behind head, both knees up. Extend one leg while bringing the opposite knee to your chest, rotating the opposite elbow toward that knee. Switch sides in a slow, controlled pedaling motion. Obliques are the rotational force engine for every QB, linebacker, and skill player."},
+      {name:"Leg Raises", detail:"3 sets &times; 12 reps", weight:"Bodyweight", muscles:"Lower Abs &middot; Hip Flexors",
+       how:"Lie flat on your back, hands tucked under your lower back for support. Keep both legs perfectly straight and raise them to pointing at the ceiling. Slowly lower — STOP just before they touch the ground. That position fighting gravity is where all the work happens. Lower abs drive your explosive first step off the line."},
+      {name:"Russian Twists", detail:"3 sets &times; 20 reps", weight:"5 lb", muscles:"Obliques &middot; Transverse Abs",
+       how:"Sit leaning back 45 degrees, knees bent, feet slightly off the floor. Hold the 5 lb dumbbell with both hands and rotate torso side to side, tapping the ground each side. Count 1 rep per side. Directly trains the twisting force needed for shedding blocks, making arm tackles, and delivering hits."},
+      {name:"Mountain Climbers", detail:"3 sets &times; 30 sec", weight:"Bodyweight", muscles:"Core &middot; Shoulders &middot; Hip Flexors",
+       how:"High push-up position, arms straight. Rapidly drive one knee toward your chest while extending the other back, alternating in a running motion. Keep hips level — no bouncing. Mountain climbers combine core strength AND cardio conditioning, simulating the demands of real game situations."},
+      {name:"Superman Hold", detail:"3 sets &times; 10 reps (5-sec hold)", weight:"Bodyweight", muscles:"Lower Back &middot; Glutes &middot; Rear Delts",
+       how:"Lie face down, arms stretched overhead. Simultaneously lift arms, chest, and legs off the floor as high as possible — like flying! Hold 5 seconds, then lower slowly. Lower back muscles protect your spine in contact situations. These are non-negotiable for football players — never skip them."}
+    ]
+  },
+  Thursday: {
+    theme:"BACK & BICEPS", sub:"Pull Day", icon:"🏋️",
+    warmup:"Large arm circles 10 each direction &rarr; 10 Scapular squeezes &rarr; 20-second dead hang",
+    cooldown:"Lat overhead stretch 30 sec each side &middot; Doorway bicep stretch 20 sec &middot; Cross-body shoulder pull 20 sec each",
+    exercises:[
+      {name:"Pull-ups", detail:"3 sets &times; max reps", weight:"Bodyweight", muscles:"Lats &middot; Biceps &middot; Core",
+       how:"Grip the bar outside shoulder-width, palms facing AWAY. From a dead hang, pull up until chin clears the bar, then lower with full control. Even 2-3 reps per set is excellent at your age. Pull-ups build a wide, powerful back that makes you harder to block and gives you a bigger tackle radius. Every rep pays off."},
+      {name:"Negative Pull-ups", detail:"3 sets &times; 5 reps", weight:"Bodyweight", muscles:"Lats &middot; Biceps",
+       how:"Jump or step up so your chin is already ABOVE the bar. Lower yourself as SLOWLY as possible — aim for a 5-count going down. Negative reps build strength up to 40% faster than standard reps. They are the number one technique for going from a few pull-ups to doing 10 or more. Do these every week without fail."},
+      {name:"Bent-Over Row", detail:"3 sets &times; 10 reps", weight:"15 lb each hand", muscles:"Upper Back &middot; Lats &middot; Rear Delts",
+       how:"Hold a 15 lb dumbbell in each hand. Push hips back and hinge forward until back is nearly parallel to floor. KEEP BACK FLAT — a rounded lower back is where injuries happen. Pull dumbbells up to your ribs, elbows driving straight back. Squeeze shoulder blades together at the top. This builds the football-ready back."},
+      {name:"Bicep Curl", detail:"3 sets &times; 12 reps", weight:"8 lb each hand", muscles:"Biceps",
+       how:"Stand holding 8 lb dumbbells, palms forward, elbows pinned to sides. Curl both weights to your shoulders, squeeze hard for 1 second at the top, then lower over 2 seconds. No body swinging! Strong biceps help with tackling, wrapping up ball carriers, and holding blocks away from your body."},
+      {name:"Hammer Curls", detail:"3 sets &times; 12 reps", weight:"8 lb each hand", muscles:"Biceps &middot; Brachialis &middot; Forearms",
+       how:"Same as bicep curls but palms face INWARD like holding hammers. Targets the brachialis, a hidden muscle that makes arms thicker, AND your forearms. Forearm strength is underrated in football — it improves your grip when catching, tackling, and shedding blocks."},
+      {name:"Dead Hang", detail:"3 sets &times; 20-30 sec", weight:"Bodyweight", muscles:"Grip Strength &middot; Forearms &middot; Shoulder Stabilizers",
+       how:"Hang from the pull-up bar, arms fully extended, completely relaxed. Just HANG and hold on. Builds crushing grip strength and decompresses your spine. Football players with iron grip are nearly impossible to shake off. Work up to 45-second holds."}
+    ]
+  },
+  Friday: {
+    theme:"EXPLOSIVE POWER", sub:"Speed & Athleticism", icon:"⚡",
+    warmup:"30 sec High Knees &rarr; 30 sec Butt Kicks &rarr; 10 Leg Swings each leg &rarr; Hip Circles",
+    cooldown:"Standing quad stretch 20 sec each &middot; Deep hip flexor lunge 30 sec each &middot; Seated hamstring reach",
+    exercises:[
+      {name:"Squat Jumps", detail:"3 sets &times; 10 reps", weight:"Bodyweight", muscles:"Quads &middot; Glutes &middot; Calves",
+       how:"Feet shoulder-width. Drop into a full squat, then EXPLODE upward as high as you can, reaching arms overhead. Land SOFTLY with bent knees — never land stiff-legged! This plyometric exercise builds the fast-twitch muscle fibers responsible for your explosive burst off the snap."},
+      {name:"Broad Jumps", detail:"3 sets &times; 5 reps", weight:"Bodyweight", muscles:"Glutes &middot; Quads &middot; Calves &middot; Core",
+       how:"Feet together. Swing arms back then launch yourself FORWARD as far as possible. Land on both feet with bent knees and stick the landing completely. Measure how far you jump and try to beat your record each week! Broad jumps build the horizontal power that makes backs explosive and receivers beat defenders deep."},
+      {name:"Burpees", detail:"3 sets &times; 8 reps", weight:"Bodyweight", muscles:"Full Body + Cardio",
+       how:"Stand — hands to floor — feet back to push-up position — do ONE push-up — feet back to hands — jump up with arms overhead. That is 1 rep. Burpees train every muscle group at once while maxing your heart rate to game-conditioning levels. Every football player should both love and fear them."},
+      {name:"Split Jumps", detail:"3 sets &times; 8 each leg", weight:"Bodyweight", muscles:"Quads &middot; Glutes &middot; Hamstrings",
+       how:"Start in a lunge. Jump straight up and SWITCH legs mid-air, landing in the opposite lunge. Keep torso upright and always land with soft, bent knees. Single-leg power is essential for cutting, exploding out of route breaks, and the rapid foot changes made on every defensive pursuit."},
+      {name:"T-Push-ups", detail:"3 sets &times; 6 each side", weight:"Bodyweight", muscles:"Chest &middot; Shoulders &middot; Obliques",
+       how:"Do a full push-up. At the TOP, rotate your whole body to one side, raising your top arm straight up — body forms a sideways T. Hold 1 second looking up at your raised hand. Return, do another push-up, rotate the other way. Combines push strength with the rotational core power used in virtually every football skill."},
+      {name:"Speed Steps", detail:"3 sets &times; 30 sec", weight:"Bodyweight", muscles:"Calves &middot; Hip Flexors &middot; Foot Speed",
+       how:"Athletic stance, weight on balls of feet. Move feet as FAST as possible in tiny, rapid steps — like running on hot coals. Arms pumping hard. Trains fast-twitch neural pathways and foot quickness. Athletes who work on foot speed early consistently dominate their competition."}
+    ]
+  },
+  Saturday: {
+    theme:"ACTIVE RECOVERY", sub:"Mobility & Flexibility", icon:"🧘",
+    warmup:"5-minute easy walk to warm up joints before stretching",
+    cooldown:"Great week! Hydrate well, eat a protein-rich meal, and get 8-9 hours of sleep tonight.",
+    exercises:[
+      {name:"Easy Walk or Light Jog", detail:"1 &times; 10 min", weight:"Bodyweight", muscles:"Full Body — Circulation",
+       how:"10 minutes of easy walking or very gentle jogging — not a sprint. The goal is increasing blood flow to sore muscles. Active recovery speeds muscle repair by up to 30 percent compared to complete rest. Your body rebuilds and grows stronger during recovery, not during training. Honor your recovery days — they are a non-negotiable part of the program."},
+      {name:"Hip Flexor Stretch", detail:"2 &times; 30 sec each side", weight:"Bodyweight", muscles:"Hip Flexors",
+       how:"Kneel on one knee, other foot planted forward. Keeping torso tall, push hips FORWARD until you feel a deep stretch in the front of your back hip. Hold 30 seconds, breathe deeply. Switch sides. Tight hip flexors are the number one cause of hamstring strains and lower back pain in football players. Stretch these every week without fail."},
+      {name:"Hamstring Stretch", detail:"2 &times; 30 sec each side", weight:"Bodyweight", muscles:"Hamstrings",
+       how:"Sit on floor, one leg extended straight, other foot tucked against inner thigh. Sit tall and reach toward your toes on the extended leg. Hold 30 seconds, no bouncing. Loose hamstrings dramatically reduce the risk of a pulled hamstring — one of the most painful and common football injuries, especially for skill players."},
+      {name:"Shoulder & Chest Opener", detail:"2 &times; 30 sec each side", weight:"Bodyweight", muscles:"Chest &middot; Front Delts",
+       how:"Stand in a doorway with one arm at shoulder height, forearm resting on the frame. Rotate your whole body away until you feel a deep stretch across your chest and shoulder. Hold 30 seconds, switch sides. After a full week of push and pull work, this prevents the chronic tightness that leads to shoulder impingement."},
+      {name:"Child's Pose", detail:"2 &times; 45 sec", weight:"Bodyweight", muscles:"Lower Back &middot; Lats &middot; Hips",
+       how:"Kneel on the floor, sit hips back toward heels, reach both arms forward as far as possible with forehead resting down. Breathe deeply — feel your lower back open with each exhale. The single most effective recovery stretch for athletes. It decompresses your entire spine and restores lats and hip mobility worked all week."},
+      {name:"Lying Spinal Twist", detail:"2 &times; 30 sec each side", weight:"Bodyweight", muscles:"Spine &middot; Obliques &middot; IT Band",
+       how:"Lie flat on your back, arms out to sides. Pull one knee to your chest then let it fall across your body, head turns the other direction. Shoulders stay flat. Hold 30 seconds, switch sides. Restores the rotational range of motion football demands on every play — every throw, tackle, catch, and block involves rotation."}
+    ]
+  },
+  Sunday: {
+    theme:"REST DAY", sub:"Recovery & Growth", icon:"😴",
+    warmup:"", cooldown:"",
+    exercises:[
+      {name:"Complete Rest — No Workout", detail:"All day", weight:"None", muscles:"Entire Body",
+       how:"This is NOT optional — it is a mandatory part of your training program. Muscles do NOT grow during workouts. They grow during sleep and rest, when your body repairs the micro-tears training creates. Skipping rest leads to overtraining, injury, and slower progress. Today: sleep 8-9 hours, drink 6-8 glasses of water, eat protein, and prepare mentally for Monday. You have earned this. See you tomorrow, champion."}
+    ]
+  }
+};
+
+var S = { day:0, checked:{}, exp:null, modal:false };
+var standalone = (window.navigator.standalone === true);
+
+function init() {
+  try { var d = localStorage.getItem('fbw-ios-v3'); if (d) S.checked = JSON.parse(d); } catch(e) {}
+  var today = new Date().getDay();
+  S.day = today === 0 ? 6 : today - 1;
+  render();
+  setTimeout(function(){ scrollTabTo(S.day); }, 120);
+}
+
+function save() {
+  try { localStorage.setItem('fbw-ios-v3', JSON.stringify(S.checked)); } catch(e) {}
+}
+
+function toggle(k) { S.checked[k] = !S.checked[k]; save(); render(); }
+function toggleExp(k) { S.exp = (S.exp === k) ? null : k; render(); }
+function setDay(i) { S.day = i; S.exp = null; render(); setTimeout(function(){ scrollTabTo(i); }, 50); }
+function openReset() { S.modal = true; render(); }
+function closeReset() { S.modal = false; render(); }
+function doReset() { S.checked = {}; S.modal = false; save(); render(); }
+
+function dayDone(d) {
+  return WD[d].exercises.every(function(_, i){ return !!S.checked[d + '-' + i]; });
+}
+
+function stats() {
+  var t = 0, c = 0;
+  DAYS.forEach(function(d){
+    WD[d].exercises.forEach(function(_, i){ t++; if (S.checked[d+'-'+i]) c++; });
+  });
+  return { t:t, c:c, pct: t ? Math.round(c/t*100) : 0 };
+}
+
+function scrollTabTo(i) {
+  var el = document.getElementById('tabs');
+  if (!el || !el.children[i]) return;
+  var tab = el.children[i];
+  el.scrollTo({ left: tab.offsetLeft - (el.offsetWidth - tab.offsetWidth)/2, behavior:'smooth' });
+}
+
+function render() {
+  var dn = DAYS[S.day], dd = WD[dn];
+  var prog = stats(), done = dayDone(dn);
+  var daysComp = DAYS.filter(function(d){ return dayDone(d); }).length;
+  var h = '';
+
+  // Install banner (only shown in Safari, not standalone)
+  if (!standalone) {
+    h += '<div class="install-bar" style="padding-top:calc(env(safe-area-inset-top,0px) + 12px)">';
+    h += '<div style="font-size:24px;flex-shrink:0">📲</div>';
+    h += '<div style="flex:1;font-size:13px;color:#94A3B8;line-height:1.45">Tap <strong style="color:#60A5FA">Share &#x2197;</strong> then <strong style="color:#22C55E">Add to Home Screen</strong> to save as an app.</div>';
+    h += '</div>';
+  }
+
+  // Header
+  var headerPad = standalone ? 'calc(env(safe-area-inset-top,16px) + 4px)' : '16px';
+  h += '<div class="header" style="padding-top:' + headerPad + '">';
+  h += '<div class="title-row">';
+  h += '<div><div class="app-title">TRAINING LOG</div><div class="app-sub">Football &amp; Baseball Program</div></div>';
+  h += '<div style="text-align:right"><div style="font-size:13px;color:#22C55E;font-weight:600;margin-bottom:6px">' + daysComp + '/7 days done</div>';
+  h += '<button class="reset-btn" onclick="openReset()">Reset Week</button></div>';
+  h += '</div>';
+  h += '<div class="pbar-labels"><span style="font-size:11px;font-weight:700;letter-spacing:0.8px;color:#64748B">WEEKLY PROGRESS</span>';
+  h += '<span style="font-size:11px;font-weight:700;color:#22C55E">' + prog.c + '/' + prog.t + ' &middot; ' + prog.pct + '%</span></div>';
+  h += '<div class="pbar"><div class="pbar-fill" style="width:' + prog.pct + '%"></div></div>';
+  h += '</div>';
+
+  // Day tabs
+  h += '<div id="tabs" class="tabs-wrap">';
+  DAYS.forEach(function(d, i){
+    var isAct = (i === S.day), isDone = dayDone(d);
+    var cls = 'dtab' + (isAct ? ' active' : isDone ? ' done' : '');
+    var lc = isAct ? '#60A5FA' : isDone ? '#22C55E' : '#64748B';
+    h += '<div class="' + cls + '" onclick="setDay(' + i + ')">';
+    h += '<span style="font-size:10px;font-weight:700;letter-spacing:0.8px;color:' + lc + '">' + DL[i] + '</span>';
+    h += '<span style="font-size:22px;line-height:1">' + (isDone ? '&#x2705;' : WD[d].icon) + '</span>';
+    h += '</div>';
+  });
+  h += '</div>';
+
+  // Day header
+  h += '<div class="day-header-card">';
+  h += '<span style="font-size:44px;line-height:1;flex-shrink:0;margin-top:2px">' + dd.icon + '</span>';
+  h += '<div><div class="day-theme">' + dd.theme + '</div>';
+  h += '<div style="font-size:13px;color:#64748B;font-weight:500;margin-top:5px">' + DL[S.day] + ' &mdash; ' + dd.sub + '</div>';
+  if (done) h += '<div class="done-pill">&#x2713; DAY COMPLETE</div>';
+  h += '</div></div>';
+
+  // Warmup
+  if (dd.warmup) {
+    h += '<div class="info-box" style="background:rgba(249,115,22,0.09);border:1px solid rgba(249,115,22,0.28)">';
+    h += '<div class="info-tag" style="color:#F97316">WARM-UP &mdash; 5 MIN</div>';
+    h += '<div style="font-size:13px;color:#FDBA74;line-height:1.55">' + dd.warmup + '</div>';
+    h += '</div>';
+  }
+
+  // Exercises
+  h += '<div style="padding:0 16px">';
+  dd.exercises.forEach(function(ex, i){
+    var key = dn + '-' + i;
+    var isChk = !!S.checked[key];
+    var isExp = (S.exp === key);
+    var cardBg = isChk ? 'rgba(34,197,94,0.07)' : '#141928';
+    var cardBorder = isChk ? 'rgba(34,197,94,0.3)' : '#1E2D45';
+    h += '<div class="ex-card' + (isChk ? ' chkd' : '') + '">';
+    h += '<div class="ex-top" onclick="toggle(\'' + key + '\')">';
+    h += '<div class="circle' + (isChk ? ' on' : '') + '">' + (isChk ? '&#x2713;' : '') + '</div>';
+    h += '<div style="flex:1;min-width:0">';
+    h += '<div class="ex-name' + (isChk ? ' done' : '') + '">' + ex.name + '</div>';
+    h += '<div class="ex-detail">' + ex.detail + (ex.weight !== 'Bodyweight' && ex.weight !== 'None' ? ' &middot; ' + ex.weight : '') + '</div>';
+    h += '<div class="ex-mus">' + ex.muscles + '</div>';
+    h += '</div></div>';
+    h += '<button class="how-btn' + (isExp ? ' open' : '') + '" onclick="toggleExp(\'' + key + '\')">';
+    h += '<span>' + (isExp ? '&#x25B2;&nbsp; Hide instructions' : '&#x25BC;&nbsp; How to perform this exercise') + '</span>';
+    h += '</button>';
+    if (isExp) {
+      h += '<div class="how-desc">' + ex.how + '</div>';
+    }
+    h += '</div>';
+  });
+  h += '</div>';
+
+  // Cooldown
+  if (dd.cooldown) {
+    h += '<div class="info-box" style="background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.25);margin-top:2px">';
+    h += '<div class="info-tag" style="color:#60A5FA">COOL-DOWN &mdash; 5 MIN</div>';
+    h += '<div style="font-size:13px;color:#93C5FD;line-height:1.55">' + dd.cooldown + '</div>';
+    h += '</div>';
+  }
+
+  // Safety
+  h += '<div class="safety"><strong style="color:#94A3B8">Safety:</strong> Form before weight. Rest 60-90 sec between sets. Stop if anything hurts. Stay hydrated!</div>';
+
+  // Bottom spacer
+  h += '<div style="height:calc(env(safe-area-inset-bottom,0px) + 40px)"></div>';
+
+  document.getElementById('app').innerHTML = h;
+
+  // Modal
+  var mr = document.getElementById('modal-root');
+  if (S.modal) {
+    mr.innerHTML = '<div class="modal-bg" onclick="closeReset()">'
+      + '<div class="modal-box" onclick="event.stopPropagation()">'
+      + '<div style="font-size:36px;margin-bottom:12px">&#x1F504;</div>'
+      + '<div style="font-family:\'Barlow Condensed\',-apple-system,sans-serif;font-size:22px;font-weight:700;letter-spacing:1px;color:#E2E8F0;margin-bottom:8px">Reset Week?</div>'
+      + '<div style="font-size:14px;color:#94A3B8;line-height:1.6">This will clear all checkmarks. Progress starts fresh for a new week.</div>'
+      + '<div class="modal-btns">'
+      + '<button class="mbtn" onclick="closeReset()" style="background:transparent;border:1px solid #1E2D45;color:#E2E8F0">Cancel</button>'
+      + '<button class="mbtn" onclick="doReset()" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.35);color:#F87171">Reset</button>'
+      + '</div></div></div>';
+  } else {
+    mr.innerHTML = '';
+  }
+}
+
+init();
+</script>
+</body>
+</html>
